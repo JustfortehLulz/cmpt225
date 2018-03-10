@@ -12,17 +12,35 @@ Deque::Deque()
 	current_size = 0;
 }
 
-// Deque::~Deque()
-// {
-// 	node* current = left_p;
-// 	while (current != NULL)
-// 	{
-// 		node* temp_L = left_p;
-// 		current = current->next;
-// 		delete temp_L;
-// 	}
-// 	//delete cursor;
-// }
+Deque::Deque(const Deque& dq)
+{
+	current_size = dq.current_size;
+	left_p = new node(dq.left_p->data,NULL,NULL);
+	node* old = dq.left_p->next;
+	cursor = left_p;
+	int i = 0;
+	while(i < current_size-1)
+	{
+		node* temp = new node(old->data,NULL,NULL);
+	 	cursor->next = temp;
+	 	temp->prev = cursor;
+	 	cursor = cursor->next;
+	 	old = old->next;
+	 	i++;
+	}
+	right_p = cursor;
+}
+
+Deque::~Deque()
+{
+	node* current = left_p;
+	while (current != NULL)
+	{
+		node* next = current->next;
+		delete current;
+		current = next;
+	}
+}
 
 // Insertion operators
 void Deque::push_left(int item)
@@ -66,12 +84,12 @@ int Deque::pop_left()
 	node* temp = left_p;
 	if (current_size > 1)
 	{
+		if(cursor == left_p)
+		{
+			cursor_right();
+		}
 		left_p = left_p->next;
 		left_p->prev = NULL;
-		if(cursor == NULL)
-		{
-			cursor = left_p;
-		}
 	}
 	else
 	{
@@ -91,6 +109,10 @@ int Deque::pop_right()
 	node* temp = right_p;
 	if (current_size > 1)
 	{
+		if(cursor == right_p)
+		{
+			cursor_left();
+		}
 		right_p = right_p->prev;
 		right_p->next = NULL;
 	}
@@ -107,15 +129,9 @@ int Deque::pop_right()
 }
 
 // Size functions
-bool Deque::empty()
-{
-	return current_size == 0;
-}
+bool Deque::empty() {return current_size == 0;}
 
-int Deque::size()
-{
-	return current_size;
-}
+int Deque::size() {return current_size;}
 
 //Cursor Movement operators
 bool Deque::cursor_left()
@@ -151,6 +167,17 @@ int Deque::peek_right() {return right_p->data;}
 
 int Deque::get_cursor() {return cursor->data;}
 
+void Deque::set_cursor(int i)
+{
+	int temp = 0;
+	cursor = left_p;
+	while(temp < i)
+	{
+		cursor_right();
+		temp++;
+	}
+}
+
 // Utility functions
 void Deque::display()
 {
@@ -164,10 +191,14 @@ void Deque::display()
 
 void Deque::verbose_display()
 {
-	node* current = right_p;
+	node* current = left_p;
 	while(current != NULL)
 	{
-		cout << current->data << endl; 
-		current = current->prev;
+		cout << "This is the address of the node: " << current 
+		<< " This is the data inside the node: " << current->data << endl; 
+		current = current->next;
 	}
+	cout << "This is the left pointer: " << left_p << endl;
+	cout << "This is the right pointer: " << right_p << endl;
+	cout << "This is the cursor pointer: " << cursor << endl;
 }
